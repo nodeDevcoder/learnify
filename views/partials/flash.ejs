@@ -1,0 +1,20 @@
+<% if (success && success.length > 0) { %>
+<div class="flash-message success" id="flash">
+  <span class="flash-message-text"><%- success %></span>
+  <span class="flash-close">×</span>
+</div>
+<% } %>
+
+<% if (warning && warning.length > 0) { %>
+<div class="flash-message warning" id="flash">
+  <span class="flash-message-text"><%- warning %></span>
+  <span class="flash-close">×</span>
+</div>
+<% } %>
+
+<% if (error && error.length > 0) { %>
+<div class="flash-message error" id="flash">
+  <span class="flash-message-text"><%- error %></span>
+  <span class="flash-close">×</span>
+</div>
+<% } %>
