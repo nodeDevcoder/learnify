@@ -14,6 +14,7 @@ const methodOverride = require('method-override');
 const MongoStore = require('connect-mongo');
 const cookieParser = require('cookie-parser');
 const Student = require('./models/student.js');
+const Admin = require('./models/admin.js');
 const app = express();
 
 
@@ -81,8 +82,7 @@ passport.serializeUser(function (user, done) {
 passport.deserializeUser(async function (id, done) {
     try {
         let user = await Student.findOne({ _id: id });
-        // if (!user) user = await Child.findOne({ _id: id });
-        // if (!user) user = await Admin.findOne({ _id: id });
+        if (!user) user = await Admin.findOne({ _id: id });
         user.accountType = user.constructor.modelName; // Parent, Admin, or Child
         done(null, user);
     } catch (err) {
@@ -93,7 +93,7 @@ passport.deserializeUser(async function (id, done) {
 
 passport.use('student', new LocalStrategy(Student.authenticate()));
 // passport.use('child', new LocalStrategy(Child.authenticate()));
-// passport.use('admin', new LocalStrategy(Admin.authenticate()));
+passport.use('admin', new LocalStrategy(Admin.authenticate()));
 
 
 app.listen(8080, () => {

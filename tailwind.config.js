@@ -2,7 +2,7 @@
 
 module.exports = {
   darkMode: 'class',
-  content: ["./views/*.ejs", "./views/**/*.ejs"],
+  content: ["./views/*.ejs", "./views/**/*.ejs", "./node_modules/flowbite/**/*.js", "./public/scripts/flowbite.min.js"],
   theme: {
     extend: {
       colors: {
@@ -30,6 +30,10 @@ module.exports = {
       ]
     }
   },
-  plugins: [],
+  plugins: [
+    require('flowbite/plugin')({
+      charts: true
+    }),
+  ],
 }
 
