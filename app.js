@@ -96,6 +96,6 @@ passport.use('student', new LocalStrategy({ usernameField: 'email' }, Student.au
 passport.use('admin', new LocalStrategy({ usernameField: 'email' }, Admin.authenticate()));
 
 
-app.listen(process.env.port || 3000, '0.0.0.0', () => {
+app.listen(process.env.PORT || 3000, () => {
     console.log('Server started on port 3000');
 });
