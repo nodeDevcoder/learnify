@@ -12,24 +12,35 @@ const studentSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     password: {
-        type: String,
-        required: true
-    },
-    confirmPassword: {
-        type: String,
-        required: true
+        type: String
     },
     id: {
         type: String
     },
-
+    independent: {
+        type: Boolean,
+        default: false
+    },
+    admin: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Admin'
+    },
+    status: {
+        type: String,
+        enum: ['Active', 'Deleted', 'Archived', 'Inactive'],
+        default: 'Active'
+    },
+    lastLogin: {
+        type: Date
+    }
 });
 
-
-studentSchema.plugin(passportLocalMongoose);
-
+studentSchema.plugin(passportLocalMongoose, {
+    usernameField: 'email'
+});
 
 module.exports = mongoose.model('Student', studentSchema);

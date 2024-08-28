@@ -19,6 +19,16 @@ body {
     }
 }
 
+.ql-toolbar {
+    border-top-right-radius: 10px !important;
+    border-top-left-radius: 10px !important;
+}
+
+.ql-container {
+    border-bottom-right-radius: 10px !important;
+    border-bottom-left-radius: 10px !important;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

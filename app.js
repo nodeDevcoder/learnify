@@ -91,11 +91,11 @@ passport.deserializeUser(async function (id, done) {
 });
 
 
-passport.use('student', new LocalStrategy(Student.authenticate()));
+passport.use('student', new LocalStrategy({ usernameField: 'email' }, Student.authenticate()));
 // passport.use('child', new LocalStrategy(Child.authenticate()));
-passport.use('admin', new LocalStrategy(Admin.authenticate()));
+passport.use('admin', new LocalStrategy({ usernameField: 'email' }, Admin.authenticate()));
 
 
 app.listen(8080, () => {
     console.log('Server started on port 3000');
-})
+});

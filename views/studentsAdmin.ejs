@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <%- include('partials/header') %>
+  <title><%= title %></title>
+</head>
+
+<body>
+  <%- include('partials/adminSide') %>
+  <div id="dashboard-area">
+    <section class="bg-white dark:bg-gray-900">
+      <div class="py-8 px-4 mx-auto max-w-[700px] lg:py-16">
+        <h2 class="mb-4 text-xl font-bold text-gray-900 dark:text-white">Manage Students</h2>
+        <form action="/admin/students" method="POST">
+          <div class="grid gap-4 sm:grid-cols-2 sm:gap-6">
+            <div class="sm:col-span-2">
+              <div class="w-full overflow-x-auto shadow-md sm:rounded-lg max-h-[400px]">
+                <table class="w-full text-sm text-left max-h-[400px] rtl:text-right text-gray-500 dark:text-gray-400">
+                  <thead class="text-xs text-gray-700 uppercase dark:text-gray-400 bg-white sticky top-0">
+                    <tr>
+                      <th scope="col" class="px-6 py-3 bg-gray-50 dark:bg-gray-800 overflow-scroll">
+                        Id
+                      </th>
+                      <th scope="col" class="px-6 py-3 overflow-scroll">
+                        First Name
+                      </th>
+                      <th scope="col" class="px-6 py-3 bg-gray-50 dark:bg-gray-800 overflow-scroll">
+                        Last Name
+                      </th>
+                      <th scope="col" class="px-6 py-3 overflow-scroll">
+                        Status
+                      </th>
+                      <th scope="col" class="px-6 py-3 bg-gray-50 dark:bg-gray-800 overflow-scroll">
+                        Last Login
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% for (let i = 0; i < students.length; i++) { %>
+                    <tr class="border-b dark:border-gray-700">
+                      <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800 ">
+                        <%= students[i].id %>
+                      </th>
+                      <td class="px-6 py-4 text-gray-900 font-medium">
+                        <%= students[i].firstName %>
+                      </td>
+                      <td class="px-6 py-4 font-medium whitespace-nowrap bg-gray-50 text-gray-900 ">
+                        <%= students[i].lastName %>
+                      </td>
+                      <td class="px-6 py-4 <%= students[i].status == 'Active' ? 'text-green-500' : 'text-red-500' %>">
+                        <%= students[i].status %>
+                      </td>
+                      <td class="px-6 py-4 font-mediumwhitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800 ">
+                        <%= students[i].lastLogin ? new Date(students[i].lastLogin).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'None' %>
+                      </td>
+                    </tr>
+                    <% } %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <input type="text" name="questions" id="questions" class="hidden" value="<%= JSON.stringify(students.map(student => { return { 'First Name': student.firstName, 'Last Name': student.lastName, 'Email': student.email, 'Id': student.id } })) %>">
+            <div class="sm:col-span-2">
+              <label for="file" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Add Students</label>
+              <input type="file" name="file" id="file" class="hidden bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Upload CSV">
+              <label for="file" class="">
+                <div id="fileContainer" class="flex justify-center items-center w-full p-10 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 cursor-pointer transition-colors duration-300 ease-in-out hover:border-gray-400 flex flex-col items-center text-center cursor-pointer">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-gray-400 mb-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm3 5a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+                  </svg>
+                  <p class="text-gray-500" id="fileName">Click to upload or drag and drop</p>
+                  <p class="text-xs text-gray-500" id="fileType">CSV</p>
+                </div>
+              </label>
+
+            </div>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js" integrity="sha512-dfX5uYVXzyU8+KHqj8bjo7UkOdg18PaOtpa48djpNbZHwExddghZ+ZmzWT06R5v6NSk3ZUfsH6FNEDepLx9hPQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            <script>
+              const fileInput = document.getElementById('file');
+              fileInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+
+                if (file) {
+                  const reader = new FileReader();
+
+                  reader.onload = (event) => {
+                    const csv = event.target.result;
+                    const data = Papa.parse(csv, {
+                      header: true
+                    });
+
+                    document.getElementById('questions').value = JSON.stringify(data.data);
+                    console.log(document.getElementById('questions').value)
+                    document.getElementById('fileName').textContent = file.name;
+                    document.getElementById('fileType').textContent = (file.size / (1024)).toFixed(2) + 'KB'
+                    fileContainer.classList.add('border-gray-400');
+                  };
+
+                  reader.readAsText(file);
+                }
+              });
+            </script>
+          </div>
+          <button type="submit" class="inline-flex items-center px-5 py-2.5 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-primary-700 rounded-lg focus:ring-4 focus:ring-primary-200 dark:focus:ring-primary-900 hover:bg-primary-800">
+            Save Students
+          </button>
+        </form>
+      </div>
+    </section>
+  </div>
+</body>
+
+</html>

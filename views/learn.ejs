@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <%- include('partials/header') %>
+  <title><%= title %></title>
+</head>
+
+<body>
+  <%- include('partials/learnSide', { content: quest.content, instance, item: content}) %>
+  <% if (content.type === 'Article') { %>
+  <div id="dashboard-area">
+    <section class="bg-white dark:bg-gray-900 flex flex-col gap-5" data-type="Article" data-id="<%= content.id._id %>">
+      <h1 class="text-4xl font-bold mt-4 mb-2"><%= content.id.title %></h1>
+      <div class="text-lg text-gray-600 dark:text-gray-400" id="content"><%- content.id.content %></div>
+    </section>
+  </div>
+  <% } else if (content.type === 'Quiz') { %>
+  <div id="dashboard-area">
+    <section class="bg-white dark:bg-gray-900 flex flex-col gap-5" data-type="Quiz" data-id="<%= content.id._id %>">
+      <h1 class="text-4xl font-bold mt-4 mb-2">Quiz: <%= content.id.title %></h1>
+      <div id="quiz-container" class="w-full max-w-lg mx-auto p-4">
+        <% content.id.questions.forEach((question, index) => { %>
+        <div class="question-screen <% if (index !== 0) { %>hidden<% } %>" id="question-<%= question._id %>">
+          <h2 class="text-xl font-bold mb-4"><%= question.text %></h2>
+          <ul>
+            <% question.answers.forEach(answer => { %>
+            <li class="flex items-center mb-2">
+              <input type="radio" name="<%= question._id %>" id="<%= answer._id %>" class="mr-2">
+              <label for="<%= answer._id %>"><%= answer.text %></label>
+            </li>
+            <% }) %>
+          </ul>
+          <input type="hidden" class="user-answers" id="user-answers-<%= question._id %>" name="user-answers">
+          <% if (index !== 0) { %>
+          <button onclick="prevQuestion('<%= question._id %>')" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded">Back</button>
+          <% } %>
+          <% if (index < content.id.questions.length - 1) { %>
+          <button onclick="nextQuestion('<%= question._id %>')" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded">Next</button>
+          <% } else { %>
+          <button onclick="submitQuiz()" class="mt-4 px-4 py-2 bg-green-500 text-white rounded">Submit</button>
+          <% } %>
+        </div>
+        <% }) %>
+      </div>
+
+    </section>
+  </div>
+  <script>
+    function prevQuestion(currentQuestionId) {
+      const currentScreen = document.getElementById(`question-${currentQuestionId}`);
+      const prevScreen = currentScreen.previousElementSibling;
+      currentScreen.classList.add('hidden');
+      prevScreen.classList.remove('hidden');
+    }
+
+    function nextQuestion(currentQuestionId) {
+      const currentScreen = document.getElementById(`question-${currentQuestionId}`);
+      const nextScreen = currentScreen.nextElementSibling;
+
+      const userAnswersInput = document.getElementById(`user-answers-${currentQuestionId}`);
+      userAnswersInput.value = currentScreen.querySelector('input[type="radio"]:checked')?.id;
+
+      if (nextScreen && nextScreen.classList.contains('question-screen') && currentScreen.querySelector('input[type="radio"]:checked')) {
+        currentScreen.classList.add('hidden');
+        nextScreen.classList.remove('hidden');
+      }
+    }
+
+    function submitQuiz() {
+      const ans = document.getElementsByClassName('user-answers');
+      let obj = {};
+      Array.from(ans).forEach(e => {
+        obj[e.parentElement.id] = e.value;
+      });
+      console.log(obj);
+    }
+  </script>
+  <% } else if (content.type === 'Video') { %>
+  <div id="dashboard-area">
+    <section class="bg-white dark:bg-gray-900 flex flex-col gap-5" data-type="Video" data-id="<%= content.id._id %>">
+      <h1 class="text-4xl font-bold mt-4 mb-2">Video: <%= content.id.title %></h1>
+      <div class="video-container w-11/12 mx-auto">
+        <iframe class="border border-gray-300 w-full aspect-video" src="<%= content.id.url %>" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+    </section>
+  </div>
+  <% } else if (content.type === 'Project') { %>
+  <div id="dashboard-area">
+    <section class="bg-white dark:bg-gray-900 flex flex-col gap-5" data-type="Project" data-id="<%= content.id._id %>">
+      <h1 class="text-4xl font-bold mt-4 mb-2">Project: <%= content.id.title %></h1>
+      <div class="text-md border rounded-lg p-4"><%- content.id.description %></div>
+    </section>
+  </div>
+  <% } %>
+
+  <script>
+    const sec = document.querySelector('section');
+    const type = sec.getAttribute('data-type');
+
+    // send a fetch on load to create a new log entry
+
+    let x = fetch(window.location.pathname, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          type,
+          action: 'Opened Content'
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  </script>
+  <% if (content.type === 'Article') { %>
+  <script>
+    // function get_text(el) {
+    //   let ret = "";
+    //   let length = el.childNodes.length;
+    //   for (let i = 0; i < length; i++) {
+    //     let node = el.childNodes[i];
+    //     if (node.nodeType != 8) {
+    //       ret += node.nodeType != 1 ? node.nodeValue : get_text(node);
+    //     }
+    //   }
+    //   return ret;
+    // }
+    // let words = get_text(document.getElementById('content'));
+    // let count = words.split(/\s+/).length;
+    // console.log(count)
+
+    // let time = 0;
+    // let progress = 0;
+    // setInterval(async function() {
+    //   time += 1;
+    //   if (time === 5) {
+    //     console.log('5 secs elapsed')
+    //     await fetch(window.location.pathname, {
+    //       method: 'POST',
+    //       headers: {
+    //         'Content-Type': 'application/json'
+    //       },
+    //       body: JSON.stringify({
+    //         type,
+    //         action: 'Initiated Learning'
+    //       })
+    //     })
+    //   }
+    //   progress = count / (200 * time / 60);
+    // }, 1000);
+
+    // reading time = 200 wpm
+  </script>
+  <% } else if (content.type === 'Quiz') { %>
+
+  <% } else if (content.type === 'Project') { %>
+
+  <% } else if (content.type === 'Video') { %>
+
+  <% } %>
+
+  <script>
+    // every 30 secs, update the log with data on time
+
+    // setInterval(function() {
+    //   let x = fetch(window.location.pathname, {
+    //       method: 'POST',
+    //       headers: {
+    //         'Content-Type': 'application/json'
+    //       },
+    //       body: JSON.stringify({
+    //         type,
+    //         action: 'Learning Progress'
+    //       })
+    //     })
+    //     .then(response => response.json())
+    //     .then(data => {
+    //       console.log(data);
+    //     })
+    //     .catch(error => {
+    //       console.log(error);
+    //     });
+    // }, 30000);
+
+    // for articles: update progress based on total words / words per minute / time
+
+    // for quizzes: update progress to 1/4, 1/2, 3/4, 1 when finished
+
+    // for projects: update progress to 1/4 when opened, 1/2 when submitted, 1 when graded
+  </script>
+
+</body>
+
+</html>

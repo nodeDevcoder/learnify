@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <%- include('partials/header') %>
+  <title><%= title %></title>
+</head>
+
+<body>
+  <%- include('partials/adminSide') %>
+  <div id="dashboard-area">
+    <section class="bg-white dark:bg-gray-900">
+      <div class="py-8 px-4 mx-auto max-w-[700px] lg:py-16">
+        <h2 class="mb-4 text-xl font-bold text-gray-900 dark:text-white">Edit <%= item.type %>: <%= item.id.title %></h2>
+        <a href="/admin/quests/<%= quest._id %>/edit" class="hover:text-black text-gray-600 dark:text-gray-400">
+          <p class="mb-4 text-base font-normal"><%= quest.name %></p>
+        </a>
+        <form action="/admin/quests/<%= quest._id %>/items/<%= item.id._id %>/edit" method="POST">
+          <div class="grid gap-4 sm:grid-cols-2 sm:gap-6">
+            <div class="sm:col-span-2">
+              <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Title</label>
+              <input type="text" name="title" id="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Enter <%= item.type.toLowerCase() %> name" required="" value="<%= item.id.title ? item.id.title : '' %>">
+            </div>
+            <% if (item.type === 'Video') { %>
+            <div class="sm:col-span-2">
+              <label for="url" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">URL</label>
+              <input type="text" name="url" id="url" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Enter URL to video" required="" value="<%= item.id.url ? item.id.url : '' %>">
+            </div>
+            <% } else if (item.type === 'Quiz') { %>
+            <div class="sm:col-span-2">
+              <h3 class="text-base block font-semibold text-gray-900 dark:text-white mb-2">Questions</h3>
+            </div>
+            <div class="sm:col-span-2">
+              <div class="w-full overflow-x-auto shadow-md sm:rounded-lg max-h-[400px]">
+                <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                  <thead class="text-xs text-gray-700 uppercase dark:text-gray-400 bg-white sticky top-0">
+                    <tr>
+                      <th scope="col" class="px-6 py-3 bg-gray-50 dark:bg-gray-800">
+                        Question
+                      </th>
+                      <th scope="col-3" class="px-6 py-3">
+                        Answers
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% for( let i = 0; i < item.id.questions.length - 1; i++ ) { %>
+                      <tr class="border-b border-gray-200 dark:border-gray-700">
+                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">
+                          <%= item.id.questions[i].text %>
+                        </th>
+                        <td class="px-6 py-4">
+                          <%- item.id.questions[i].answers.map(answer => `<span class="bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300 inline-block ${answer._id.toString() == item.id.questions[i].correctAnswer?.toString() ? 'bg-green-100 text-green-800' : ''}">${answer.text}</span>`).join('') %>
+                        </td>
+                      </tr>
+                    <% } %>
+                    <tr>
+                      <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">
+                        <%= item.id.questions[item.id.questions.length - 1].text %>
+                      </th>
+                      <td class="px-6 py-4">
+                        <%- item.id.questions[item.id.questions.length - 1].answers.map(answer => `<span class="bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300 inline-block ${answer._id.toString() == item.id.questions[item.id.questions.length - 1].correctAnswer?.toString() ? 'bg-green-100 text-green-800' : ''}">${answer.text}</span>`).join('') %>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <input type="text" name="questions" id="questions" class="hidden">
+            <div class="sm:col-span-2">
+              <label for="file" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Question/Answer Data</label>
+              <input type="file" name="file" id="file" class="hidden bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Upload CSV" value="<%= item.id.url ? item.id.url : '' %>">
+              <label for="file" class="">
+                <div id="fileContainer" class="flex justify-center items-center w-full p-10 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 cursor-pointer transition-colors duration-300 ease-in-out hover:border-gray-400 flex flex-col items-center text-center cursor-pointer">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-gray-400 mb-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm3 5a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+                  </svg>
+                  <p class="text-gray-500" id="fileName">Click to upload or drag and drop</p>
+                  <p class="text-xs text-gray-500" id="fileType">CSV</p>
+                </div>
+              </label>
+
+            </div>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js" integrity="sha512-dfX5uYVXzyU8+KHqj8bjo7UkOdg18PaOtpa48djpNbZHwExddghZ+ZmzWT06R5v6NSk3ZUfsH6FNEDepLx9hPQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            <script>
+              const fileInput = document.getElementById('file');
+              fileInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+
+                if (file) {
+                  const reader = new FileReader();
+
+                  reader.onload = (event) => {
+                    const csv = event.target.result;
+                    const data = Papa.parse(csv, {
+                      header: true
+                    });
+
+                    document.getElementById('questions').value = JSON.stringify(data.data);
+                    console.log(document.getElementById('questions').value)
+                    document.getElementById('fileName').textContent = file.name;
+                    document.getElementById('fileType').textContent = (file.size / (1024)).toFixed(2) + 'KB'
+                    fileContainer.classList.add('border-gray-400');
+                  };
+
+                  reader.readAsText(file);
+                }
+              });
+            </script>
+            <% } else if (item.type === 'Article') { %>
+            <input type="text" name="content" id="content" class="hidden" onchange="console.log(this.value)" value="<%- item.id.content %>">
+            <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
+            <div class="sm:col-span-2 mb-10 h-[500px]">
+              <!-- Create the editor container -->
+              <div id="editor">
+                <%- item.id.content %>
+              </div>
+            </div>
+            <!-- Include the Quill library -->
+            <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+            <!-- Initialize Quill editor -->
+            <script>
+              const quill = new Quill('#editor', {
+                theme: 'snow'
+              });
+
+              quill.on('text-change', function(delta, oldDelta, source) {
+                document.getElementById('content').value = quill.root.innerHTML;
+              });
+            </script>
+            <% } else if (item.type === 'Project') { %>
+            <input type="text" name="description" id="content" class="hidden" onchange="console.log(this.value)" value="<%- item.id.description %>">
+            <label for="editor" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Project Details</label>
+            <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
+            <div class="sm:col-span-2 mb-10 h-[500px]">
+              <!-- Create the editor container -->
+              <div id="editor">
+                <%- item.id.description %>
+              </div>
+            </div>
+            <!-- Include the Quill library -->
+            <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+
+            <!-- Initialize Quill editor -->
+            <script>
+              const quill = new Quill('#editor', {
+                theme: 'snow'
+              });
+
+              quill.on('text-change', function(delta, oldDelta, source) {
+                document.getElementById('content').value = quill.root.innerHTML;
+              });
+            </script>
+            <% } %>
+          </div>
+          <button type="submit" class="inline-flex items-center px-5 py-2.5 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-primary-700 rounded-lg focus:ring-4 focus:ring-primary-200 dark:focus:ring-primary-900 hover:bg-primary-800">
+            Edit Content
+          </button>
+        </form>
+      </div>
+    </section>
+  </div>
+</body>
+
+</html>
