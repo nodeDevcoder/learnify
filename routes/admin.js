@@ -11,6 +11,8 @@ const Video = require('../models/video');
 const Student = require('../models/student');
 const mongoose = require('mongoose');
 const passport = require('passport');
+const middleware = require('../config/middleware');
+
 
 // login and register routes available to all
 
