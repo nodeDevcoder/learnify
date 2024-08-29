@@ -6,6 +6,7 @@ const Admin = require('../models/admin');
 const Student = require('../models/student');
 const QuestInstance = require('../models/questInstance');
 const Log = require('../models/log');
+const middleware = require('../config/middleware');
 
 router.get('/login', (req, res) => {
     console.log('student');
@@ -36,7 +37,7 @@ router.get('/about', (req, res) => {
     });
 });
 
-router.get('/dashboard', async (req, res) => {
+router.get('/dashboard', middleware.isStudent, async (req, res) => {
     let quests = await Quest.find({ $or: [{ admin: req.user.admin }, { private: { $ne: true } }] });
     const currentQuests = await QuestInstance.find({ student: req.user._id }).populate('quest');
     quests = quests.filter(q => !currentQuests.some(cq => cq.quest._id.toString() === q._id.toString()));
@@ -48,7 +49,7 @@ router.get('/dashboard', async (req, res) => {
 });
 
 // route handler for where to go when trying to start/resume a quest 
-router.get('/quests/learn/:id', async (req, res) => {
+router.get('/quests/learn/:id', middleware.isStudent, async (req, res) => {
     const quest = await Quest.findById(req.params.id).populate('content.id');
     if (quest) {
         let questInstance = await QuestInstance.findOne({
@@ -89,7 +90,7 @@ router.get('/quests/learn/:id', async (req, res) => {
     }
 });
 
-router.get('/quests/learn/:id/:contentId', async (req, res) => {
+router.get('/quests/learn/:id/:contentId', middleware.isStudent, async (req, res) => {
     const quest = await Quest.findById(req.params.id).populate('content.id');
     const instance = await QuestInstance.findOne({
         student: req.user._id,
@@ -115,7 +116,7 @@ router.get('/quests/learn/:id/:contentId', async (req, res) => {
     }
 });
 
-router.post('/quests/learn/:id/contentId', async (req, res) => {
+router.post('/quests/learn/:id/contentId', middleware.isStudent, async (req, res) => {
     const instance = await QuestInstance.findOne({
         student: req.user._id,
         quest: req.params.id

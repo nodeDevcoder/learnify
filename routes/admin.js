@@ -75,14 +75,14 @@ router.post('/admin/register', async (req, res) => {
 
 // dashboard routes for admin
 
-router.get('/admin/dashboard', async (req, res) => {
+router.get('/admin/dashboard', middleware.isAdmin, async (req, res) => {
     const quests = await Quest.find({ status: 'Active' });
     res.render('dashboardAdmin', {
         title: 'Dashboard', quests
     });
 });
 
-router.get('/admin/students', async (req, res) => {
+router.get('/admin/students', middleware.isAdmin, async (req, res) => {
     const students = await Student.find({ admin: req.user._id, status: 'Active' });
     res.render('studentsAdmin', {
         title: 'Manage Students',
@@ -90,7 +90,7 @@ router.get('/admin/students', async (req, res) => {
     });
 });
 
-router.post('/admin/students', async (req, res) => {
+router.post('/admin/students', middleware.isAdmin, async (req, res) => {
     const students = JSON.parse(req.body.questions);
     for (let i = 0; i < students.length; i++) {
         let student = await Student.findOne({ admin: req.user._id, email: students[i]['Email'] });
@@ -114,7 +114,7 @@ router.post('/admin/students', async (req, res) => {
     res.redirect('/admin/students');
 });
 
-router.get('/admin/quests', async (req, res) => {
+router.get('/admin/quests', middleware.isAdmin, async (req, res) => {
     const quests = await Quest.find({ status: 'Active' });
     res.render('questsAdmin', {
         title: 'Quests',
@@ -122,13 +122,13 @@ router.get('/admin/quests', async (req, res) => {
     });
 });
 
-router.get('/admin/quests/create', (req, res) => {
+router.get('/admin/quests/create', middleware.isAdmin, (req, res) => {
     res.render('createQuest', {
         title: 'Create A Quest'
     });
 });
 
-router.post('/admin/quests/create', async (req, res) => {
+router.post('/admin/quests/create', middleware.isAdmin, async (req, res) => {
     try {
         let { name, category, gradeLevel, description } = req.body;
         console.log(req.body);
@@ -147,7 +147,7 @@ router.post('/admin/quests/create', async (req, res) => {
     }
 });
 
-router.get('/admin/quests/:id/edit', async (req, res) => {
+router.get('/admin/quests/:id/edit', middleware.isAdmin, async (req, res) => {
     const quest = await Quest.findById(req.params.id).populate('content.id');
     res.render('editQuest', {
         title: 'Edit Quest',
@@ -155,7 +155,7 @@ router.get('/admin/quests/:id/edit', async (req, res) => {
     });
 });
 
-router.post('/admin/quests/:id/edit', async (req, res) => {
+router.post('/admin/quests/:id/edit', middleware.isAdmin, async (req, res) => {
     // reorder content
     const quest = await Quest.findById(req.params.id);
     // let questions = await Question.find({ correctAnswer: { $ne: false } });
@@ -180,7 +180,7 @@ router.post('/admin/quests/:id/edit', async (req, res) => {
     res.send({ success: true, quest });
 });
 
-router.get('/admin/quests/:id/add', async (req, res) => {
+router.get('/admin/quests/:id/add', middleware.isAdmin, async (req, res) => {
     const quest = await Quest.findById(req.params.id);
     res.render('createContent', {
         title: 'Add Content',
@@ -188,7 +188,7 @@ router.get('/admin/quests/:id/add', async (req, res) => {
     });
 });
 
-router.post('/admin/quests/:id/add', async (req, res) => {
+router.post('/admin/quests/:id/add', middleware.isAdmin, async (req, res) => {
     if (!req.body.category || !req.body.title) {
         req.flash('error', 'All fields are required');
         return res.redirect('/admin/quests/' + req.params.id + '/add');
@@ -226,7 +226,7 @@ router.post('/admin/quests/:id/add', async (req, res) => {
     }
 });
 
-router.get('/admin/quests/:id/items/:uid/edit', async (req, res) => {
+router.get('/admin/quests/:id/items/:uid/edit', middleware.isAdmin, async (req, res) => {
     const quest = await Quest.findById(req.params.id).populate('content.id');
     const item = quest.content.find(c => c.id._id.toString() === req.params.uid);
     if (item.type == 'Quiz') {
@@ -239,7 +239,7 @@ router.get('/admin/quests/:id/items/:uid/edit', async (req, res) => {
     });
 });
 
-router.post('/admin/quests/:id/items/:uid/edit', async (req, res) => {
+router.post('/admin/quests/:id/items/:uid/edit', middleware.isAdmin, async (req, res) => {
     const quest = await Quest.findById(req.params.id).populate('content.id');
     const item = quest.content.find(c => c.id._id.toString() === req.params.uid);
     if (!req.body.title) {
