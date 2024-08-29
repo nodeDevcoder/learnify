@@ -75,9 +75,10 @@ router.post('/admin/register', async (req, res) => {
 
 // dashboard routes for admin
 
-router.get('/admin/dashboard', (req, res) => {
+router.get('/admin/dashboard', async (req, res) => {
+    const quests = await Quest.find({ status: 'Active' });
     res.render('dashboardAdmin', {
-        title: 'Dashboard'
+        title: 'Dashboard', quests
     });
 });
 
@@ -114,7 +115,7 @@ router.post('/admin/students', async (req, res) => {
 });
 
 router.get('/admin/quests', async (req, res) => {
-    const quests = await Quest.find();
+    const quests = await Quest.find({ status: 'Active' });
     res.render('questsAdmin', {
         title: 'Quests',
         quests

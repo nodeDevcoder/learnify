@@ -24,6 +24,18 @@ router.post('/login', passport.authenticate('student', {
     res.redirect(redirectUrl);
 });
 
+router.get('/contact', (req, res) => {
+    res.render('contact', {
+        title: 'Contact Us'
+    });
+});
+
+router.get('/about', (req, res) => {
+    res.render('about', {
+        title: 'About Us'
+    });
+});
+
 router.get('/dashboard', async (req, res) => {
     let quests = await Quest.find({ $or: [{ admin: req.user.admin }, { private: { $ne: true } }] });
     const currentQuests = await QuestInstance.find({ student: req.user._id }).populate('quest');
